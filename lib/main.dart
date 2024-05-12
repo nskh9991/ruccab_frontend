@@ -7,6 +7,8 @@ import 'package:senior_project_ruccab/constant.dart';
 import 'package:senior_project_ruccab/provider/ride_provider.dart';
 import 'package:senior_project_ruccab/provider/user_provider.dart';
 import 'package:senior_project_ruccab/screens/auth/selection_role_screen.dart';
+import 'package:senior_project_ruccab/screens/auth/signin_screen.dart';
+import 'package:senior_project_ruccab/screens/auth/signup_screen.dart';
 import 'package:senior_project_ruccab/screens/book_ride_main_screen.dart';
 import 'package:senior_project_ruccab/screens/menu/trip_history_screen.dart';
 import 'package:senior_project_ruccab/splash_screen.dart';
@@ -40,7 +42,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: mainColor),
         useMaterial3: true,
       ),
-      home: SelectionRoleScreen(),
+      home: SplashScreen(),
     );
   }
 }

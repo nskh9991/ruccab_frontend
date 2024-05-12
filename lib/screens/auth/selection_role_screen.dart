@@ -3,6 +3,7 @@ import 'package:senior_project_ruccab/constant.dart';
 import 'package:senior_project_ruccab/main.dart';
 import 'package:senior_project_ruccab/screens/book_ride_main_screen.dart';
 import 'package:senior_project_ruccab/screens/car_ride_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SelectionRoleScreen extends StatefulWidget {
   const SelectionRoleScreen({Key? key}) : super(key: key);
@@ -14,12 +15,21 @@ class SelectionRoleScreen extends StatefulWidget {
 class _SelectionRoleScreenState extends State<SelectionRoleScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-
+  String _savedString = "";
   bool _isRoleSelected = false;
+
+  Future<void> _loadSavedString() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _savedString = prefs.getString('accessTokenKey') ?? '';
+      print("1 $_savedString");
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadSavedString();
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 600),
@@ -42,7 +52,6 @@ class _SelectionRoleScreenState extends State<SelectionRoleScreen>
   void _onRoleButtonTap() {
     _controller.reset();
     _controller.forward();
-    // You can add more animations or effects here if needed
   }
 
   @override
@@ -100,7 +109,7 @@ class _SelectionRoleScreenState extends State<SelectionRoleScreen>
                   onTap: () {
                     sharedPrefenrece.setString('signed', 'true');
                     sharedPrefenrece.setString('role', 'driver');
-                    _onRoleButtonTap(); // Call the method for the animation
+                    _onRoleButtonTap();
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(

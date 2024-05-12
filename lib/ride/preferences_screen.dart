@@ -1,32 +1,56 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:senior_project_ruccab/models/ride.dart';
 import 'package:senior_project_ruccab/ride/passengers_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../constant.dart';
 
-class PreferencesScreen extends StatefulWidget {
-  const PreferencesScreen({super.key});
+String url = "https://ruccab-backend.onrender.com";
 
+class PreferencesScreen extends StatefulWidget {
+  final String startLocation;
+  final String endLocation;
+
+  const PreferencesScreen({
+    super.key,
+    required this.startLocation,
+    required this.endLocation,
+  });
   @override
   State<PreferencesScreen> createState() => _PreferencesScreenState();
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
   String gender = "Unspecified";
-  String time = 'Select Time';
+  String displayTime = 'Select Time'; // For displaying the time
+  DateTime selectedDateTime = DateTime.now();
   bool smoke = false;
   bool food = false;
   bool pets = false;
   int passengerCount = 0;
   double _timeOpacity = 1.0;
   FocusNode passengerFocusNode = FocusNode();
-  TextEditingController passengerController = TextEditingController();
+  TextEditingController passengerCountController = TextEditingController();
   TextEditingController detailsController = TextEditingController();
   FocusNode detailsFocusNode = FocusNode();
   bool isFieldFocused = false;
 
+  
+  String _savedString = "";
+  Future<void> _loadSavedString() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _savedString = prefs.getString('accessTokenKey') ?? '';
+      print("1 $_savedString");
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    _loadSavedString();
     detailsFocusNode.addListener(() {
       setState(() {
         isFieldFocused = detailsFocusNode.hasFocus;
@@ -142,8 +166,6 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     );
   }
 
- 
-
   Widget _buildDetailsField() {
     return TextFormField(
       decoration: InputDecoration(
@@ -163,39 +185,24 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     );
   }
 
-  Widget _buildConfirmationButton() {
-    return Center(
-      child: ElevatedButton(
-        onPressed: _showConfirmationDialog,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: mainColor,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
-        ),
-        child: const Text("Next",
-            style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 20)),
-      ),
-    );
-  }
-Future<void> _selectTime() async {
+  Future<void> _selectTime() async {
     final TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialTime: TimeOfDay.fromDateTime(selectedDateTime),
     );
     if (pickedTime != null && mounted) {
       setState(() {
-        // Set opacity to 0 to start the fade-out animation
-        _timeOpacity = 0.0;
-      });
-      // Allow some time for the fade-out animation to complete
-      await Future.delayed(const Duration(milliseconds: 500));
-      setState(() {
-        // Update the time and start the fade-in animation
-        time = pickedTime.format(context);
+        // Update the selectedDateTime with the new time
+        selectedDateTime = DateTime(
+          selectedDateTime.year,
+          selectedDateTime.month,
+          selectedDateTime.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+        // Update the displayTime for the UI
+        displayTime = pickedTime.format(context);
+        // Reset opacity animation
         _timeOpacity = 1.0;
       });
     }
@@ -210,13 +217,12 @@ Future<void> _selectTime() async {
             style: TextStyle(
                 color: mainColor, fontWeight: FontWeight.w600, fontSize: 20)),
         AnimatedOpacity(
-          opacity: _timeOpacity, // Use the animated opacity for the fade effect
-          duration:
-              const Duration(milliseconds: 500), // Duration of the animation
+          opacity: _timeOpacity,
+          duration: const Duration(milliseconds: 500),
           child: ElevatedButton(
             onPressed: _selectTime,
             style: ElevatedButton.styleFrom(foregroundColor: mainColor),
-            child: Text(time,
+            child: Text(displayTime,
                 style:
                     TextStyle(color: mainColor, fontWeight: FontWeight.w600)),
           ),
@@ -225,8 +231,69 @@ Future<void> _selectTime() async {
     );
   }
 
+  Widget _buildConfirmationButton() {
+    return Center(
+      child: ElevatedButton(
+        onPressed: createRide, // This should trigger the function defined above
+        style: ElevatedButton.styleFrom(
+          backgroundColor: mainColor,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+        ),
+        child: const Text("Create Ride",
+            style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 20)),
+      ),
+    );
+  }
+
+  Future<void> createRide() async {
+    if (_savedString.isEmpty) {
+//
+    } else {
+      Ride ride = Ride(
+        rideId:
+            'unique_ride_id', // This should be generated or fetched as needed
+        driverId:
+            'driver_specific_id', // Set appropriately based on your application's context
+        time: selectedDateTime,
+        startLocation: widget.startLocation,
+        endLocation: widget.endLocation,
+        smokeAllowed: smoke,
+        petsAllowed: pets,
+        foodAllowed: food,
+        passengerCount: passengerCount,
+        gender: gender,
+      );
+
+      // Serialize the Ride object and send it to the backend
+      try {
+        var response = await http.post(
+          Uri.parse('$url/api/ride/rides'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization':
+                'Bearer $_savedString', // Include the token in the Authorization header
+          },
+          body: jsonEncode(ride.toJson()),
+        );
+
+        if (response.statusCode == 200) {
+          print('Ride created successfully');
+        } else {
+          print('Failed to create ride: ${response.body}');
+        }
+      } catch (e) {
+        print('Error creating ride: $e');
+      }
+    }
+  }
+
   void _showConfirmationDialog() {
-   showGeneralDialog(
+    showGeneralDialog(
       context: context,
       barrierDismissible: true,
       barrierColor: Colors.black45.withOpacity(0.5),
@@ -308,7 +375,9 @@ Future<void> _selectTime() async {
                       fontWeight: FontWeight.w600,
                       fontSize: 13),
                 ),
-                SizedBox(width: 20,),
+                SizedBox(
+                  width: 20,
+                ),
                 SizedBox(
                   width: 40,
                   child: TextField(
@@ -316,7 +385,7 @@ Future<void> _selectTime() async {
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     focusNode: passengerFocusNode,
                     cursorColor: mainColor,
-                    controller: passengerController,
+                    controller: passengerCountController,
                     onTapOutside: (value) {
                       passengerFocusNode.unfocus();
                     },

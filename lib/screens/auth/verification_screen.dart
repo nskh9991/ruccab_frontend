@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:senior_project_ruccab/constant.dart';
 import 'package:senior_project_ruccab/screens/auth/enable_location_screen.dart';
 import 'package:senior_project_ruccab/utils/http_req.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VerificationScreen extends StatefulWidget {
   final String email;
@@ -29,6 +30,10 @@ class _VerificationScreenState extends State<VerificationScreen> {
     ''
   ]; // List to store verification code digits
 
+Future<void> _saveString(String value, String key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -167,6 +172,7 @@ class _VerificationScreenState extends State<VerificationScreen> {
                         widget.email, verificationCode);
 
                     if (response[0] == true) {
+                      _saveString(response[1].toString(), "accessTokenKey");
                       if (!context.mounted) return;
                       Navigator.pushAndRemoveUntil(
                         context,

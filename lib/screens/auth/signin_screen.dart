@@ -6,6 +6,7 @@ import 'package:senior_project_ruccab/screens/auth/signup_screen.dart';
 import 'package:senior_project_ruccab/screens/auth/verification_screen.dart';
 import 'package:senior_project_ruccab/utils/http_req.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
 
@@ -20,8 +21,13 @@ class _SignInScreenState extends State<SignInScreen> {
   FocusNode passwordFocus = FocusNode();
   bool obscure = false;
   final httpRequest = HttpRequests();
-
   final _formKey = GlobalKey<FormState>();
+
+  Future<void> _saveString(String value, String key) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key, value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -183,17 +189,31 @@ class _SignInScreenState extends State<SignInScreen> {
                   GestureDetector(
                     onTap: () async {
                       print("login clicked");
+                      print("${emailController.text}");
                       var response = await httpRequest.login(
                           emailController.text, passwordController.text);
 
-                      if (response[0] == true) {
+                      if (response[0] == false) {
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("${response[1].toString()}"),
+                        ));
+                      } else {
+                        _saveString(response[1].toString(), "accessTokenKey");
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SelectionRoleScreen()),
+                        );
+                      }
+                      /*  if (response[0] == true) {
                         if (!context.mounted) return;
 
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
                               builder: (context) =>
-                                  const EnableLocationScreen()),
+                                  const SelectionRoleScreen()),
                           (route) => false,
                         );
                       } else {
@@ -217,7 +237,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                     email: emailController.text)),
                           );
                         }
-                      }
+                      }*/
                     },
                     child: Container(
                       height: 45,

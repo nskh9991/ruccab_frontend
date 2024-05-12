@@ -37,6 +37,7 @@ class _CarRideScreenState extends State<CarRideScreen> {
     'Beirut Arab University(Debieh)',
   ];
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -424,10 +425,40 @@ class _CarRideScreenState extends State<CarRideScreen> {
                   width: 300,
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.push(
+                      // Check if both locations are selected
+                      if (selectedStartLocation.isNotEmpty &&
+                          selectedUniversityLocation.isNotEmpty) {
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const PreferencesScreen()));
+                            builder: (context) => PreferencesScreen(
+                              startLocation: selectedStartLocation,
+                              endLocation: selectedUniversityLocation,
+                            ),
+                          ),
+                        );
+                      } else {
+                        // Optionally show an alert if one of the locations isn't selected
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Missing Information"),
+                              content: const Text(
+                                  "Please select both a start and a destination location."),
+                              actions: <Widget>[
+                                TextButton(
+                                  child: const Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Dismiss the dialog
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      }
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -447,6 +478,7 @@ class _CarRideScreenState extends State<CarRideScreen> {
                     ),
                   ),
                 ),
+
               ],
             ),
           ),

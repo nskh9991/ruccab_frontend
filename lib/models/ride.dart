@@ -7,6 +7,8 @@ class Ride {
   final bool smokeAllowed;
   final bool petsAllowed;
   final bool foodAllowed;
+  final int passengerCount;
+  final String gender;
 
   Ride({
     required this.rideId,
@@ -17,6 +19,8 @@ class Ride {
     this.smokeAllowed = false,
     this.petsAllowed = false,
     this.foodAllowed = false,
+    required this.passengerCount,
+    required this.gender,
   });
 
   //  Ride instance -> json
@@ -30,6 +34,8 @@ class Ride {
       'smokeAllowed': smokeAllowed,
       'petsAllowed': petsAllowed,
       'foodAllowed': foodAllowed,
+      'passengerCount': passengerCount,
+      'gender': gender,
     };
   }
 
@@ -45,6 +51,8 @@ class Ride {
       smokeAllowed: json['smokeAllowed'],
       petsAllowed: json['petsAllowed'],
       foodAllowed: json['foodAllowed'],
+         passengerCount: json['passengerCount'],
+gender: json['gender'],
     );
   }
 }

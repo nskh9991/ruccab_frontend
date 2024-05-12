@@ -1,217 +1,275 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:senior_project_ruccab/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
-class ConfirmationDriverComponent extends StatefulWidget {
-  const ConfirmationDriverComponent({super.key});
+class CarInformationScreen extends StatefulWidget {
+  const CarInformationScreen({super.key});
 
   @override
-  State<ConfirmationDriverComponent> createState() =>
-      _ConfirmationDriverComponentState();
+  State<CarInformationScreen> createState() => _CarInformationScreenState();
 }
 
-class _ConfirmationDriverComponentState
-    extends State<ConfirmationDriverComponent> {
-  bool selected = false;
+class _CarInformationScreenState extends State<CarInformationScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  final TextEditingController _colorController = TextEditingController();
+  final TextEditingController _plateNumberController = TextEditingController();
+  final TextEditingController _capacityController = TextEditingController();
+  final TextEditingController _modelController = TextEditingController();
+  final TextEditingController _licenseNumberController =
+      TextEditingController();
+  final TextEditingController _expirationDateController =
+      TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  bool _isEditable = true;
+  String url = "https://ruccab-backend.onrender.com";
+
+// Function to load data
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+    loadSavedData();
+    setupListeners();
+  }
+
+  void setupListeners() {
+    _colorController.addListener(() => saveData());
+    _plateNumberController.addListener(() => saveData());
+    _capacityController.addListener(() => saveData());
+    _modelController.addListener(() => saveData());
+    _licenseNumberController.addListener(() => saveData());
+    _expirationDateController.addListener(() => saveData());
+  }
+
+  Future<void> loadSavedData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    _colorController.text = prefs.getString('carColor') ?? '';
+    _plateNumberController.text = prefs.getString('carPlateNumber') ?? '';
+    _capacityController.text = prefs.getString('carCapacity') ?? '';
+    _modelController.text = prefs.getString('carModel') ?? '';
+    _licenseNumberController.text = prefs.getString('licenseNumber') ?? '';
+    _expirationDateController.text =
+        prefs.getString('licenseExpirationDate') ?? '';
+  }
+
+  Future<void> saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('carColor', _colorController.text);
+    await prefs.setString('carPlateNumber', _plateNumberController.text);
+    await prefs.setString('carCapacity', _capacityController.text);
+    await prefs.setString('carModel', _modelController.text);
+    await prefs.setString('licenseNumber', _licenseNumberController.text);
+    await prefs.setString(
+        'licenseExpirationDate', _expirationDateController.text);
+  }
+
+  @override
+  void dispose() {
+    // Remove listeners when the widget is disposed
+    _colorController.removeListener(() => saveData());
+    _plateNumberController.removeListener(() => saveData());
+    _capacityController.removeListener(() => saveData());
+    _modelController.removeListener(() => saveData());
+    _licenseNumberController.removeListener(() => saveData());
+    _expirationDateController.removeListener(() => saveData());
+
+    _colorController.dispose();
+    _plateNumberController.dispose();
+    _capacityController.dispose();
+    _modelController.dispose();
+    _licenseNumberController.dispose();
+    _expirationDateController.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Widget buildCarTab() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          buildTextField('Color', _colorController),
+          buildTextField('Plate Number', _plateNumberController),
+          buildTextField('Capacity', _capacityController),
+          buildTextField('Model', _modelController),
+          ElevatedButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                _tabController.animateTo(1);
+              }
+            },
+            child: Text('Next'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildLicenseTab() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          buildTextField('License Number', _licenseNumberController),
+          buildTextField('Expiration Date', _expirationDateController),
+          ElevatedButton(
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                submitAllInformation();
+              }
+            },
+            child: Text('Done'),
+          ),
+          ElevatedButton(
+            onPressed: toggleEdit,
+            child: Text('Enable Editing'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> submitAllInformation() async {
+    if (_isEditable) {
+      // Attempt to add car information
+      bool carSuccess = await addCarInformation();
+      if (carSuccess) {
+        // Proceed only if car info is successfully added
+        bool licenseSuccess = await addLicenseInformation();
+        if (licenseSuccess) {
+          // If license info also added successfully
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content:
+                    Text('Car and license information submitted successfully')),
+          );
+          _tabController.animateTo(0); // Go back to the car tab
+        } else {
+          // If license information failed to add
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to add license information')),
+          );
+        }
+      } else {
+        // If car information failed to add
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to add car information')),
+        );
+      }
+
+      // Toggle editing back off if needed
+      toggleEdit();
+    }
+  }
+
+  Future<bool> addCarInformation() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('accessTokenKey');
+
+    final response = await http.post(
+      Uri.parse('$url/cars'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'color': _colorController.text,
+        'plateNumber': _plateNumberController.text,
+        'capacity': _capacityController.text,
+        'model': _modelController.text,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Car added successfully')),
+      );
+      return true; // Indicates success
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add car: ${response.body}')),
+      );
+      return false; // Indicates failure
+    }
+  }
+
+  Future<bool> addLicenseInformation() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('accessTokenKey');
+
+    final response = await http.post(
+      Uri.parse('$url/licenses'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'licenseNumber': _licenseNumberController.text,
+        'expirationDate': _expirationDateController.text,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('License added successfully')),
+      );
+      return true; // Indicates success
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to add license: ${response.body}')),
+      );
+      return false; // Indicates failure
+    }
+  }
+
+  void toggleEdit() {
+    setState(() {
+      _isEditable = !_isEditable;
+    });
+  }
+
+  Widget buildTextField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(),
+        ),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
+        enabled: _isEditable,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.maxFinite,
-      height: 160,
-      decoration: BoxDecoration(
-          color: const Color.fromRGBO(241, 216, 234, 1.0),
-          borderRadius: BorderRadius.circular(20)),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 15.0, left: 10, right: 10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Column(
-                  children: [
-                    const Text('White Swift',
-                        style: TextStyle(
-                            color: mainColor, fontWeight: FontWeight.w600)),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0, bottom: 15),
-                      child: SizedBox(
-                        height: 50,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: CachedNetworkImage(
-                            imageUrl:
-                                "https://platform.cstatic-images.com/xlarge/in/v2/stock_photos/9b4509f2-259e-460c-96d7-6bd672414021/4652f3a8-300a-4ddc-9c17-0d4a783b2e5c.png",
-                            fit: BoxFit.cover,
-                            // width: double.maxFinite,
-                            placeholder: (context, url) {
-                              return const Icon(
-                                Icons.person,
-                                size: 60,
-                              );
-                            },
-                            errorWidget: (context, url, error) {
-                              return const Icon(
-                                Icons.person,
-                                size: 60,
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'BMW M3',
-                      style: TextStyle(color: greyColor),
-                    ),
-                    Text(' 1234',
-                        style: TextStyle(
-                            color: darkGrey, fontWeight: FontWeight.w500))
-                  ],
-                ),
-                const SizedBox(
-                  width: 50,
-                ),
-                Row(
-                  children: [
-                    const Column(
-                      children: [
-                        Text(
-                          'Ahmad',
-                          style: TextStyle(
-                              color: mainColor, fontWeight: FontWeight.w500),
-                        ),
-                        Row(children: [
-                          Icon(
-                            Icons.star,
-                            color: Colors.yellow,
-                          ),
-                          Text('4.5'),
-                        ]),
-                      ],
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    SizedBox(
-                      height: 40,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: CachedNetworkImage(
-                          imageUrl:
-                              "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?cs=srgb&dl=pexels-simon-robben-614810.jpg&fm=jpg",
-                          fit: BoxFit.cover,
-                          // width: double.maxFinite,
-                          placeholder: (context, url) {
-                            return const Icon(
-                              Icons.person,
-                              size: 60,
-                            );
-                          },
-                          errorWidget: (context, url, error) {
-                            return const Icon(
-                              Icons.person,
-                              size: 60,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
-            ),
-          ),
-          Container(
-            width: double.maxFinite,
-            color: greyColor,
-            height: 1,
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                flex: 1,
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    height: 50,
-                    decoration: const BoxDecoration(
-                        borderRadius:
-                            BorderRadius.only(bottomLeft: Radius.circular(20))),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.phone,
-                          size: 20,
-                          color: greyColor,
-                        ),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          'Call Driver',
-                          style: TextStyle(color: greyColor, fontSize: 18),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                width: 1,
-                color: greyColor,
-                height: 50,
-              ),
-              Expanded(
-                flex: 1,
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      selected = !selected;
-                    });
-                  },
-                  child: Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: selected
-                              ? mainColor.withOpacity(.4)
-                              : Colors.transparent,
-                          borderRadius: const BorderRadius.only(
-                              bottomRight: Radius.circular(20))),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.cancel,
-                            size: 20,
-                            color: greyColor,
-                          ),
-                          SizedBox(
-                            width: 5,
-                          ),
-                          Text(
-                            'Cancel Ride',
-                            style: TextStyle(color: greyColor, fontSize: 18),
-                          ),
-                        ],
-                      )),
-                ),
-              ),
-            ],
-          ),
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Car and License Information'),
+      ),
+      body: Form(
+        key: _formKey,
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            buildCarTab(),
+            buildLicenseTab(),
+          ],
+        ),
       ),
     );
   }

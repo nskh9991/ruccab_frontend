@@ -22,10 +22,21 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimation;
+  String _savedString = "";
+
+  Future<void> _loadSavedString() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _savedString = prefs.getString('accessTokenKey') ?? '';
+      print("1 $_savedString");
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadSavedString();
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 1),
@@ -44,13 +55,25 @@ class _SplashScreenState extends State<SplashScreen>
     // Start the animation
     _controller.forward();
 
-    // Navigate to next screen after animation completes
     Timer(
       const Duration(seconds: 2),
-      () => Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const SignInScreen()),
-      ),
+      () => {
+        if (_savedString.isEmpty)
+          {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const IntroductionScreen()),
+            )
+          }
+        else
+          {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => const SelectionRoleScreen()),
+            )
+          }
+      },
     );
   }
 
@@ -63,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen>
             duration: const Duration(seconds: 10),
             curve: Curves.easeInOut,
             top: MediaQuery.of(context).size.height * 0.2,
-            left: 0, 
+            left: 0,
             right: 0,
             child: SlideTransition(
               position: _offsetAnimation,

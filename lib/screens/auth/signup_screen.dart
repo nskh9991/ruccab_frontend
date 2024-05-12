@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:senior_project_ruccab/constant.dart';
+import 'package:senior_project_ruccab/screens/auth/selection_role_screen.dart';
 import 'package:senior_project_ruccab/screens/auth/verification_screen.dart';
 import 'package:senior_project_ruccab/utils/http_req.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -44,7 +46,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   FocusNode firstNameFocus = FocusNode();
   FocusNode lastNameFocus = FocusNode();
   final httpRequest = HttpRequests();
-
+  
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -384,13 +386,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Icon(
-                              Icons
-                                  .transgender_sharp, 
+                              Icons.transgender_sharp,
                               color: mainColor,
                             ),
                             SizedBox(
-                                width: 10
-                                ), // Space between icon and dropdown
+                                width: 10), // Space between icon and dropdown
                             Expanded(
                               child: DropdownButtonFormField<String>(
                                 value: selectedGender,
@@ -509,10 +509,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           selectedGender!,
                           selectedFaculty!,
                           confirmPasswordController.text,
-                          phoneController.text
-                          // p.text,
-                          );
+                          phoneController.text,
+                           );
 
+                             
+                 
+                           if(response[0]== true){
+                        
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => VerificationScreen(email: emailController.text)),
+                        );
+                           }else{
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text("${response[1].toString()}"),
+                        ));
+                           }
+/*
                       if (response[0] == true) {
                         Navigator.push(
                           context,
@@ -526,8 +541,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text("${response[1]}"),
                         ));
+                      
                       }
+                    */
                     },
+                  
                     child: Container(
                       height: 45,
                       width: double.maxFinite,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:senior_project_ruccab/components/confirmation_driver_component.dart';
 import 'package:senior_project_ruccab/constant.dart';
 import 'package:senior_project_ruccab/main.dart';
 import 'package:senior_project_ruccab/screens/auth/signin_screen.dart';
@@ -177,8 +178,7 @@ class _MenuScreenState extends State<MenuScreen> {
                   Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            const ConfirmationDriverComponent(),
+                        builder: (context) => const CarInformationScreen(),
                       ));
                 },
                 child: Container(
