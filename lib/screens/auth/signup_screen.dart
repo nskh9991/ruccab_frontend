@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:senior_project_ruccab/constant.dart';
-import 'package:senior_project_ruccab/screens/auth/selection_role_screen.dart';
 import 'package:senior_project_ruccab/screens/auth/verification_screen.dart';
 import 'package:senior_project_ruccab/utils/http_req.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -20,7 +18,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? selectedGender;
 
   List<String> faculty = [
-    'Science and Mathematics',
+    'Science',
     'Business',
     'Design and built environment',
     'Engineering'
@@ -46,7 +44,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   FocusNode firstNameFocus = FocusNode();
   FocusNode lastNameFocus = FocusNode();
   final httpRequest = HttpRequests();
-  
+
   final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
@@ -68,7 +66,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     child: Align(
                       alignment: Alignment
                           .centerLeft, // Changing the alignment to left
-                      child: const Text(
+                      child: Text(
                         "Sign Up",
                         style: TextStyle(
                           fontSize: 30,
@@ -385,11 +383,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.transgender_sharp,
                               color: mainColor,
                             ),
-                            SizedBox(
+                            const SizedBox(
                                 width: 10), // Space between icon and dropdown
                             Expanded(
                               child: DropdownButtonFormField<String>(
@@ -419,12 +417,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons
                                   .school, // Icon representing education/faculty
                               color: mainColor,
                             ),
-                            SizedBox(
+                            const SizedBox(
                                 width: 10), // Space between icon and dropdown
                             Expanded(
                               child: DropdownButtonFormField<String>(
@@ -509,26 +507,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           selectedGender!,
                           selectedFaculty!,
                           confirmPasswordController.text,
-                          phoneController.text,
-                           );
-
-                             
-                 
-                           if(response[0]== true){
-                        
-
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => VerificationScreen(email: emailController.text)),
-                        );
-                           }else{
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text("${response[1].toString()}"),
-                        ));
-                           }
-/*
+                          phoneController.text
+                          // p.text,
+                          );
+                      print(response);
                       if (response[0] == true) {
+                        if (!context.mounted) return;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -538,14 +522,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         );
                       } else {
+                        if (!context.mounted) return;
+
                         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text("${response[1]}"),
                         ));
-                      
                       }
-                    */
                     },
-                  
                     child: Container(
                       height: 45,
                       width: double.maxFinite,

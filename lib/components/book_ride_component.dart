@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:senior_project_ruccab/constant.dart';
 import 'package:senior_project_ruccab/ride_details.dart';
+
+import '../provider/ride_provider.dart';
 
 class BookRideComponent extends StatelessWidget {
   const BookRideComponent({
@@ -12,6 +15,8 @@ class BookRideComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final rideProvider = Provider.of<RideProvider>(context);
+
     return SizedBox(
       height: 100,
       child: Row(
@@ -40,10 +45,10 @@ class BookRideComponent extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Abo Samra",
+                Text(
+                  rideProvider.rides.data![index].destination!,
                   maxLines: 1,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 17,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -63,9 +68,9 @@ class BookRideComponent extends StatelessWidget {
                         const SizedBox(
                           width: 5,
                         ),
-                        const Text(
-                          "5 mins",
-                          style: TextStyle(
+                        Text(
+                          rideProvider.rides.data![index].time!,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: darkGrey,
                           ),
@@ -75,19 +80,19 @@ class BookRideComponent extends StatelessWidget {
                     const SizedBox(
                       width: 20,
                     ),
-                    const Row(
+                    Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.person,
                           color: darkGrey,
                           size: 18,
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 5,
                         ),
                         Text(
-                          "3",
-                          style: TextStyle(
+                          "${rideProvider.rides.data![index].preferences!.capacity}",
+                          style: const TextStyle(
                             fontSize: 12,
                             color: darkGrey,
                           ),

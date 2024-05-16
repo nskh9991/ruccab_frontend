@@ -2,13 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:provider/provider.dart';
 import 'package:senior_project_ruccab/constant.dart';
+import 'package:senior_project_ruccab/screens/auth/selection_role_screen.dart';
 import 'package:senior_project_ruccab/screens/book_ride_main_screen.dart';
 
 import '../components/confirmation_driver_component.dart';
+import '../provider/ride_provider.dart';
 
 class ConfirmRideScreen extends StatefulWidget {
-  const ConfirmRideScreen({super.key});
+  final int index;
+  const ConfirmRideScreen({super.key, required this.index});
 
   @override
   State<ConfirmRideScreen> createState() => _ConfirmRideScreenState();
@@ -20,6 +24,8 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
   @override
   void initState() {
     super.initState();
+    final rideProvider = Provider.of<RideProvider>(context, listen: false);
+    rideProvider.requestAride(rideProvider.rides.data![widget.index].id ?? "");
     Timer(const Duration(seconds: 3), () {
       setState(() {
         loading = false;
@@ -56,7 +62,7 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
                                 fontWeight: FontWeight.w600,
                               ),
                               textAlign: TextAlign.center,
-                              child: Text('Your ride has been Confirmed'),
+                              child: Text('Your ride has been requested'),
                             ),
                             const SizedBox(
                               height: 20,
@@ -96,6 +102,8 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final rideProvider = Provider.of<RideProvider>(context);
+
     return loading
         ? const Scaffold(
             body: Column(
@@ -149,187 +157,203 @@ class _ConfirmRideScreenState extends State<ConfirmRideScreen> {
               ),
               backgroundColor: Colors.white,
             ),
-            body: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      const Center(
-                          child: SizedBox(
-                              width: 200,
-                              child: Divider(
-                                thickness: 2,
-                              ))),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: Colors.white,
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  offset: const Offset(0, 3),
-                                  blurRadius: 5,
-                                  color: Colors.black.withOpacity(.4),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        const Center(
+                            child: SizedBox(
+                                width: 200,
+                                child: Divider(
+                                  thickness: 2,
+                                ))),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.white,
+                                boxShadow: <BoxShadow>[
+                                  BoxShadow(
+                                    offset: const Offset(0, 3),
+                                    blurRadius: 5,
+                                    color: Colors.black.withOpacity(.4),
+                                  ),
+                                ],
+                              ),
+                              child: Image.asset(
+                                'assets/images/car_icon.png',
+                                width: 80,
+                                height: 60,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 25,
+                            ),
+                            const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Al shifaa street',
+                                    style: TextStyle(
+                                        color: darkGrey,
+                                        fontWeight: FontWeight.w600)),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.access_time,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      '8 mins',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Icon(
+                                      Icons.person,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text(
+                                      '0 Passengers',
+                                      style: TextStyle(color: Colors.grey),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                            child: Image.asset(
-                              'assets/images/car_icon.png',
-                              width: 80,
-                              height: 60,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 25,
-                          ),
-                          const Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Al shifaa street',
-                                  style: TextStyle(
-                                      color: darkGrey,
-                                      fontWeight: FontWeight.w600)),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.access_time,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    '8 mins',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                ],
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        const Center(
+                            child: SizedBox(
+                                width: 170,
+                                child: Divider(
+                                  thickness: 2,
+                                ))),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                      ],
+                    ),
+                    // const ConfirmationDriverComponent(),
+                    const SizedBox(
+                      height: 60,
+                    ),
+                    Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            // var x = await rideProvider.completeRide(
+                            //     "${rideProvider.rides.data![widget.index].id}");
+                            // print("-===================");
+                            // print(x[1]);
+                            // Navigator.pop(context);
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const SelectionRoleScreen(),
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Icon(
-                                    Icons.person,
-                                    color: Colors.grey,
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    '0 Passengers',
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                ],
+                              (route) => false,
+                            );
+                          },
+                          child: Container(
+                            width: 200,
+                            decoration: BoxDecoration(
+                                color: mainColor,
+                                borderRadius: BorderRadius.circular(20)),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 5.0,
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      const Center(
-                          child: SizedBox(
-                              width: 170,
-                              child: Divider(
-                                thickness: 2,
-                              ))),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                    ],
-                  ),
-                  const ConfirmationDriverComponent(),
-                  const SizedBox(
-                    height: 60,
-                  ),
-                  Column(
-                    children: [
-                      GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          width: 200,
-                          decoration: BoxDecoration(
-                              color: mainColor,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 5.0,
-                            ),
-                            child: Text(
-                              'Confirm Payment',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18),
-                              textAlign: TextAlign.center,
+                              child: Text(
+                                'Finish',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          width: 200,
-                          decoration: BoxDecoration(
-                              color: mainColor,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 5.0,
-                            ),
-                            child: Text(
-                              'Call Driver',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
+                        const SizedBox(
+                          height: 10,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          width: 200,
-                          decoration: BoxDecoration(
-                              color: mainColor,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                              vertical: 5.0,
-                            ),
-                            child: Text(
-                              'Done',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 18),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
+                        // GestureDetector(
+                        //   onTap: () {},
+                        //   child: Container(
+                        //     width: 200,
+                        //     decoration: BoxDecoration(
+                        //         color: mainColor,
+                        //         borderRadius: BorderRadius.circular(20)),
+                        //     child: const Padding(
+                        //       padding: EdgeInsets.symmetric(
+                        //         vertical: 5.0,
+                        //       ),
+                        //       child: Text(
+                        //         'Call Driver',
+                        //         style: TextStyle(
+                        //             color: Colors.white,
+                        //             fontWeight: FontWeight.w600,
+                        //             fontSize: 18),
+                        //         textAlign: TextAlign.center,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        const SizedBox(
+                          height: 10,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        // GestureDetector(
+                        //   onTap: () {},
+                        //   child: Container(
+                        //     width: 200,
+                        //     decoration: BoxDecoration(
+                        //         color: mainColor,
+                        //         borderRadius: BorderRadius.circular(20)),
+                        //     child: const Padding(
+                        //       padding: EdgeInsets.symmetric(
+                        //         vertical: 5.0,
+                        //       ),
+                        //       child: Text(
+                        //         'Done',
+                        //         style: TextStyle(
+                        //             color: Colors.white,
+                        //             fontWeight: FontWeight.w600,
+                        //             fontSize: 18),
+                        //         textAlign: TextAlign.center,
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );

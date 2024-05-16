@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:senior_project_ruccab/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -15,13 +16,16 @@ class _CarInformationScreenState extends State<CarInformationScreen> {
   final TextEditingController _plateNumberController = TextEditingController();
   final TextEditingController _capacityController = TextEditingController();
   final TextEditingController _modelController = TextEditingController();
-  final TextEditingController _licenseNumberController = TextEditingController();
-  final TextEditingController _expirationDateController = TextEditingController();
-  final TextEditingController _vehicleClassController = TextEditingController();  // New controller for vehicle class
+  final TextEditingController _licenseNumberController =
+      TextEditingController();
+  final TextEditingController _expirationDateController =
+      TextEditingController();
+  final TextEditingController _vehicleClassController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool _isEditable = true;
-  String url = "https://ruccab-backend.onrender.com";
+
+  String url = "null";
 
   @override
   void initState() {
@@ -37,8 +41,10 @@ class _CarInformationScreenState extends State<CarInformationScreen> {
       _capacityController.text = prefs.getString('carCapacity') ?? '';
       _modelController.text = prefs.getString('carModel') ?? '';
       _licenseNumberController.text = prefs.getString('licenseNumber') ?? '';
-      _expirationDateController.text = prefs.getString('licenseExpirationDate') ?? '';
-      _vehicleClassController.text = prefs.getString('vehicleClass') ?? ''; // Load vehicle class
+      _expirationDateController.text =
+          prefs.getString('licenseExpirationDate') ?? '';
+      _vehicleClassController.text =
+          prefs.getString('vehicleClass') ?? ''; // Load vehicle class
     });
   }
 
@@ -50,7 +56,8 @@ class _CarInformationScreenState extends State<CarInformationScreen> {
     prefs.setString('carModel', _modelController.text);
     prefs.setString('licenseNumber', _licenseNumberController.text);
     prefs.setString('licenseExpirationDate', _expirationDateController.text);
-    prefs.setString('vehicleClass', _vehicleClassController.text); // Save vehicle class
+    prefs.setString(
+        'vehicleClass', _vehicleClassController.text); // Save vehicle class
   }
 
   Widget buildTextField(String label, TextEditingController controller) {
@@ -60,7 +67,7 @@ class _CarInformationScreenState extends State<CarInformationScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
         validator: (value) {
           if (value == null || value.isEmpty) {
@@ -82,9 +89,10 @@ class _CarInformationScreenState extends State<CarInformationScreen> {
           buildTextField('Plate Number', _plateNumberController),
           buildTextField('Capacity', _capacityController),
           buildTextField('Model', _modelController),
-          buildTextField('License Number', _licenseNumberController),
-          buildTextField('Expiration Date', _expirationDateController),
-          buildTextField('Vehicle Class', _vehicleClassController),  // New text field for vehicle class
+          // buildTextField('License Number', _licenseNumberController),
+          // buildTextField('Expiration Date', _expirationDateController),
+          // buildTextField('Vehicle Class',
+          // _vehicleClassController), // New text field for vehicle class
           ElevatedButton(
             onPressed: _isEditable ? submitAllInformation : null,
             child: const Text('Submit'),
@@ -105,18 +113,11 @@ class _CarInformationScreenState extends State<CarInformationScreen> {
 
     var carSuccess = await addCarInformation();
     if (carSuccess) {
-      var licenseSuccess = await addLicenseInformation();
-      if (licenseSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-                  Text('Car and license information submitted successfully')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to add license information')),
-        );
-      }
+      saveData();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Car information submitted successfully')),
+      );
+      Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to add car information')),
@@ -125,49 +126,22 @@ class _CarInformationScreenState extends State<CarInformationScreen> {
   }
 
   Future<bool> addCarInformation() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessTokenKey');
-
-    final response = await http.post(
-      Uri.parse('$url/car/addCar'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({
-        'color': _colorController.text,
-        'plateNumber': _plateNumberController.text,
-        'capacity': _capacityController.text,
-        'model': _modelController.text,
-        'vehicleClass': _vehicleClassController.text, // Include vehicle class in API request
-      }),
-    );
-
-    if (response.statusCode != 201) {
-      debugPrint('Failed to add car: ${response.body}');
-      return false; // Indicates failure
+    var response = await httpRequest.addCar(
+        _colorController.text,
+        _plateNumberController.text,
+        _capacityController.text,
+        _modelController.text);
+    print(response);
+    if (response[0] == true) {
+      return true;
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("${response[1]}"),
+        ));
+      }
+      return false;
     }
-
-    return true; // Indicates success
-  }
-
-  Future<bool> addLicenseInformation() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessTokenKey');
-
-    final response = await http.post(
-      Uri.parse('$url/license/addLicenseInfo'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({
-        'licenseNumber': _licenseNumberController.text,
-        'expirationDate': _expirationDateController.text,
-      }),
-    );
-
-    return response.statusCode == 201; // Simplified success check
   }
 
   void toggleEdit() {

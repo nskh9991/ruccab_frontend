@@ -51,8 +51,8 @@ class Ride {
       smokeAllowed: json['smokeAllowed'],
       petsAllowed: json['petsAllowed'],
       foodAllowed: json['foodAllowed'],
-         passengerCount: json['passengerCount'],
-gender: json['gender'],
+      passengerCount: json['passengerCount'],
+      gender: json['gender'],
     );
   }
 }

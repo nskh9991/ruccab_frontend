@@ -4,19 +4,20 @@ import 'package:senior_project_ruccab/constant.dart';
 import 'package:senior_project_ruccab/functions/functions.dart';
 
 class WalletScreen extends StatefulWidget {
-  const WalletScreen({Key? key}) : super(key: key);
+  final int wallet;
+  const WalletScreen({super.key, required this.wallet});
 
   @override
   State<WalletScreen> createState() => _WalletScreenState();
 }
 
 class _WalletScreenState extends State<WalletScreen> {
-  double dollar = 3.8;
-  late double lira;
+  // double dollar = 3.8;
+  // late double lira;
 
   @override
   Widget build(BuildContext context) {
-    lira = convertDollarsToLira(dollar);
+    // lira = convertDollarsToLira(dollar);
     return Scaffold(
       appBar: AppBar(
         scrolledUnderElevation: 0,
@@ -91,19 +92,19 @@ class _WalletScreenState extends State<WalletScreen> {
                     ),
                   ),
                   Text(
-                    "${lira.toStringAsFixed(2)}LL",
+                    "${widget.wallet}\$",
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Text(
-                    "${dollar.toStringAsFixed(2)}\$",
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  // Text(
+                  //   "${dollar.toStringAsFixed(2)}\$",
+                  //   style: const TextStyle(
+                  //     fontSize: 16,
+                  //     fontWeight: FontWeight.w600,
+                  //   ),
+                  // ),
                 ],
               ),
               const SizedBox(

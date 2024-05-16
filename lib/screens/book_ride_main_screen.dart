@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:senior_project_ruccab/components/book_ride_component.dart';
 import 'package:senior_project_ruccab/constant.dart';
+import 'package:senior_project_ruccab/provider/ride_provider.dart';
 import 'package:senior_project_ruccab/screens/menu/menu_screen.dart';
 import 'package:senior_project_ruccab/screens/view_rides_screen.dart';
 
@@ -12,9 +14,9 @@ class BookRideMainScreen extends StatefulWidget {
 }
 
 class _BookRideMainScreenState extends State<BookRideMainScreen> {
-  List<String> startLocation = [
+  List<String> destinationLocation = [
     'Abo Samra',
-    'Mina',
+    'mina',
     'Akkar',
     'Sir Denieh',
     'Kalamoun',
@@ -23,18 +25,18 @@ class _BookRideMainScreenState extends State<BookRideMainScreen> {
     'Dam w Farz',
   ];
 
-  String? selectedStartLocation;
+  String? selectedDestinationtLocation;
 
-  FocusNode _focusNode = FocusNode();
+  // FocusNode _focusNode = FocusNode();
   TextEditingController startController = TextEditingController();
   TextEditingController universityController = TextEditingController();
-  bool _alignment = true;
+  bool _alignment = false;
   @override
   Widget build(BuildContext context) {
+    final rideProvider = Provider.of<RideProvider>(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        scrolledUnderElevation: 0,
         elevation: 0,
         title: const Text(
           "Book a Ride",
@@ -115,27 +117,29 @@ class _BookRideMainScreenState extends State<BookRideMainScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Colors.white,
                             ),
                             child: DropdownButtonFormField<String>(
-                              value: selectedStartLocation,
-                              items: startLocation
+                              value: selectedDestinationtLocation,
+                              items: destinationLocation
                                   .map((location) => DropdownMenuItem<String>(
                                         value: location,
                                         child: Text(
                                           location,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                             color: Colors.black,
                                             fontSize: 15,
                                           ),
                                         ),
                                       ))
                                   .toList(),
-                              onChanged: (value) {
+                              onChanged: (value) async {
                                 setState(() {
-                                  selectedStartLocation = value;
+                                  selectedDestinationtLocation = value;
                                 });
+                                await rideProvider.fetchRidesByDestination(
+                                    selectedDestinationtLocation ?? "");
                               },
                               decoration: InputDecoration(
                                 border: InputBorder.none,
@@ -170,12 +174,11 @@ class _BookRideMainScreenState extends State<BookRideMainScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Colors.white,
                             ),
                             child: TextField(
                               controller: universityController,
-
                               readOnly: true, // Makes the TextField read-only
                               cursorColor:
                                   mainColor, // Set your 'mainColor' variable accordingly
@@ -254,9 +257,9 @@ class _BookRideMainScreenState extends State<BookRideMainScreen> {
           Container(
             height: MediaQuery.of(context).size.height * 0.65,
             width: double.maxFinite,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: const BorderRadius.only(
+              borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(30),
                 topRight: Radius.circular(30),
               ),
@@ -306,10 +309,12 @@ class _BookRideMainScreenState extends State<BookRideMainScreen> {
                         ),
                       ),
                     ),
-                    itemCount: 4,
+                    itemCount: rideProvider.rides.data != null
+                        ? rideProvider.rides.data!.length
+                        : 0,
                     itemBuilder: (context, index) {
-                      return const BookRideComponent(
-                        index: 0,
+                      return BookRideComponent(
+                        index: index,
                       );
                     },
                   ),

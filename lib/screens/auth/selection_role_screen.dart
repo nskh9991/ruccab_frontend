@@ -6,7 +6,7 @@ import 'package:senior_project_ruccab/screens/car_ride_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SelectionRoleScreen extends StatefulWidget {
-  const SelectionRoleScreen({Key? key}) : super(key: key);
+  const SelectionRoleScreen({super.key});
 
   @override
   State<SelectionRoleScreen> createState() => _SelectionRoleScreenState();
@@ -19,10 +19,9 @@ class _SelectionRoleScreenState extends State<SelectionRoleScreen>
   bool _isRoleSelected = false;
 
   Future<void> _loadSavedString() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _savedString = prefs.getString('accessTokenKey') ?? '';
-      print("1 $_savedString");
+      _savedString = sharedPrefenrece.getString('accessTokenKey') ?? '';
+      print("token: $_savedString");
     });
   }
 
@@ -61,32 +60,32 @@ class _SelectionRoleScreenState extends State<SelectionRoleScreen>
         fit: StackFit.expand,
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage("assets/images/mapWallpaper.png"),
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          Positioned(
+          const Positioned(
             top: 55,
             left: 10,
             child: Row(
               children: [
-                IconButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  icon: const Icon(
-                    Icons.arrow_back_ios_new_sharp,
-                    color: mainColor,
-                    size: 30,
-                  ),
-                ),
-                const SizedBox(
+                // IconButton(
+                //   onPressed: () {
+                //     Navigator.pop(context);
+                //   },
+                //   icon: const Icon(
+                //     Icons.arrow_back_ios_new_sharp,
+                //     color: mainColor,
+                //     size: 30,
+                //   ),
+                // ),
+                SizedBox(
                   width: 50,
                 ),
-                const Text(
+                Text(
                   "Select Your Role",
                   style: TextStyle(
                     fontSize: 25,
@@ -110,12 +109,11 @@ class _SelectionRoleScreenState extends State<SelectionRoleScreen>
                     sharedPrefenrece.setString('signed', 'true');
                     sharedPrefenrece.setString('role', 'driver');
                     _onRoleButtonTap();
-                    Navigator.pushAndRemoveUntil(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const CarRideScreen(),
                       ),
-                      (route) => false,
                     );
                   },
                 ),
@@ -127,7 +125,7 @@ class _SelectionRoleScreenState extends State<SelectionRoleScreen>
                     height: 60,
                     width: 60,
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
@@ -138,7 +136,7 @@ class _SelectionRoleScreenState extends State<SelectionRoleScreen>
                         height: 60,
                         width: 60,
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
@@ -163,12 +161,11 @@ class _SelectionRoleScreenState extends State<SelectionRoleScreen>
                     sharedPrefenrece.setString('signed', 'true');
                     sharedPrefenrece.setString('role', 'passenger');
                     _onRoleButtonTap(); // Call the method for the animation
-                    Navigator.pushAndRemoveUntil(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const BookRideMainScreen(),
                       ),
-                      (route) => false,
                     );
                   },
                 ),
@@ -219,7 +216,7 @@ class _SelectionRoleScreenState extends State<SelectionRoleScreen>
               const SizedBox(height: 10),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: mainColor,
                   fontSize: 18,

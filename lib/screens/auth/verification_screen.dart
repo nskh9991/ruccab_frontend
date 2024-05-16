@@ -14,12 +14,12 @@ class VerificationScreen extends StatefulWidget {
 }
 
 class _VerificationScreenState extends State<VerificationScreen> {
-  FocusNode _focusNode1 = FocusNode();
-  FocusNode _focusNode2 = FocusNode();
-  FocusNode _focusNode3 = FocusNode();
-  FocusNode _focusNode4 = FocusNode();
-  FocusNode _focusNode5 = FocusNode();
-  FocusNode _focusNode6 = FocusNode();
+  final FocusNode _focusNode1 = FocusNode();
+  final FocusNode _focusNode2 = FocusNode();
+  final FocusNode _focusNode3 = FocusNode();
+  final FocusNode _focusNode4 = FocusNode();
+  final FocusNode _focusNode5 = FocusNode();
+  final FocusNode _focusNode6 = FocusNode();
   final httpRequest = HttpRequests();
   List<String> codeDigits = [
     '',
@@ -30,10 +30,6 @@ class _VerificationScreenState extends State<VerificationScreen> {
     ''
   ]; // List to store verification code digits
 
-Future<void> _saveString(String value, String key) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setString(key, value);
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -170,9 +166,9 @@ Future<void> _saveString(String value, String key) async {
                     var verificationCode = codeDigits.join('');
                     var response = await httpRequest.verificationCode(
                         widget.email, verificationCode);
+                    print(response);
 
                     if (response[0] == true) {
-                      _saveString(response[1].toString(), "accessTokenKey");
                       if (!context.mounted) return;
                       Navigator.pushAndRemoveUntil(
                         context,
@@ -183,7 +179,6 @@ Future<void> _saveString(String value, String key) async {
                       );
                     } else {
                       if (!context.mounted) return;
-
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                         content: Text("${response[1]}"),
                       ));

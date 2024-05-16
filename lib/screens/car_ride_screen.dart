@@ -16,13 +16,13 @@ class _CarRideScreenState extends State<CarRideScreen> {
   // FocusNode _focusNode2 = FocusNode();
   // TextEditingController startController = TextEditingController();
   // TextEditingController universityController = TextEditingController();
-  bool _alignment = true;
+  bool _alignment = false;
   String selectedStartLocation = '';
   String selectedUniversityLocation = '';
 
   List<String> startLocation = [
     'Abo Samra',
-    'Mina',
+    'mina',
     'Akkar',
     'Sir Denieh',
     'Kalamoun',
@@ -36,7 +36,6 @@ class _CarRideScreenState extends State<CarRideScreen> {
     'Beirut Arab University(Beirut)',
     'Beirut Arab University(Debieh)',
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -150,8 +149,8 @@ class _CarRideScreenState extends State<CarRideScreen> {
                   height: 20,
                 ),
                 Padding(
-                  padding:
-                      EdgeInsets.only(right: 25.0), // Add padding to the left
+                  padding: const EdgeInsets.only(
+                      right: 25.0), // Add padding to the left
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -161,7 +160,7 @@ class _CarRideScreenState extends State<CarRideScreen> {
                             _alignment = !_alignment;
                           });
                         },
-                        child: Icon(
+                        child: const Icon(
                           Icons.change_circle_outlined,
                           color: mainColor,
                         ),
@@ -187,6 +186,7 @@ class _CarRideScreenState extends State<CarRideScreen> {
                       onSelected: (value) async {
                         setState(() {
                           selectedStartLocation = value;
+                          print("selectedStartLocation $selectedStartLocation");
                         });
                       },
                       child: Container(
@@ -244,6 +244,8 @@ class _CarRideScreenState extends State<CarRideScreen> {
                       onSelected: (value) async {
                         setState(() {
                           selectedUniversityLocation = value;
+                          print(
+                              "selectedUniversityLocation $selectedUniversityLocation");
                         });
                       },
                       child: Container(
@@ -312,6 +314,7 @@ class _CarRideScreenState extends State<CarRideScreen> {
                       onSelected: (value) async {
                         setState(() {
                           selectedStartLocation = value;
+                          print("selectedStartLocation $selectedStartLocation");
                         });
                       },
                       child: Container(
@@ -369,6 +372,8 @@ class _CarRideScreenState extends State<CarRideScreen> {
                       onSelected: (value) async {
                         setState(() {
                           selectedUniversityLocation = value;
+                          print(
+                              "selectedUniversityLocation $selectedUniversityLocation");
                         });
                       },
                       child: Container(
@@ -425,7 +430,6 @@ class _CarRideScreenState extends State<CarRideScreen> {
                   width: 300,
                   child: GestureDetector(
                     onTap: () {
-                      // Check if both locations are selected
                       if (selectedStartLocation.isNotEmpty &&
                           selectedUniversityLocation.isNotEmpty) {
                         Navigator.push(
@@ -478,7 +482,6 @@ class _CarRideScreenState extends State<CarRideScreen> {
                     ),
                   ),
                 ),
-
               ],
             ),
           ),

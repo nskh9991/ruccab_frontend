@@ -1,18 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:senior_project_ruccab/main.dart';
 import 'package:senior_project_ruccab/screens/auth/selection_role_screen.dart';
-import 'package:senior_project_ruccab/screens/auth/signin_screen.dart';
-import 'package:senior_project_ruccab/screens/book_ride_main_screen.dart';
-import 'package:senior_project_ruccab/screens/car_ride_screen.dart';
 import 'package:senior_project_ruccab/screens/introduction_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'constant.dart';
-
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key});
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -62,7 +56,8 @@ class _SplashScreenState extends State<SplashScreen>
           {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const IntroductionScreen()),
+              MaterialPageRoute(
+                  builder: (context) => const IntroductionScreen()),
             )
           }
         else

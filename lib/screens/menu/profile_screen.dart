@@ -54,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           CircleAvatar(
             radius: 80,
             backgroundImage: _imageFile == null
-                ? AssetImage("assets/images/profile.png") as ImageProvider
+                ? const AssetImage("assets/images/profile.png") as ImageProvider
                 : FileImage(File(_imageFile!.path)) as ImageProvider,
           ),
           Positioned(
@@ -67,7 +67,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   builder: ((builder) => bottomSheet()),
                 );
               },
-              child: Icon(
+              child: const Icon(
                 Icons.camera_alt,
                 color: Colors.red,
                 size: 28.0,
@@ -83,33 +83,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       height: 100.0,
       width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.symmetric(
+      margin: const EdgeInsets.symmetric(
         horizontal: 20,
         vertical: 20,
       ),
       child: Column(
         children: <Widget>[
-          Text(
+          const Text(
             "Choose Profile Picture",
             style: TextStyle(
               fontSize: 20.0,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               TextButton.icon(
-                icon: Icon(Icons.camera, color: Colors.red),
+                icon: const Icon(Icons.camera, color: Colors.red),
                 label: const Text("Camera"),
                 onPressed: () {
                   takePhoto(ImageSource.camera);
                 },
               ),
               TextButton.icon(
-                icon: Icon(Icons.image, color: Colors.red),
+                icon: const Icon(Icons.image, color: Colors.red),
                 label: const Text("Gallery"),
                 onPressed: () {
                   takePhoto(ImageSource.gallery);
@@ -359,13 +359,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: TextStyle(
+        hintStyle: const TextStyle(
           color: darkGrey,
           fontSize: 15,
           fontWeight: FontWeight.w600,
           letterSpacing: 1,
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 20),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(

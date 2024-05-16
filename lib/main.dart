@@ -1,20 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:senior_project_ruccab/components/book_ride_component.dart';
-import 'package:senior_project_ruccab/components/confirmation_driver_component.dart';
-import 'package:senior_project_ruccab/components/history_component.dart';
 import 'package:senior_project_ruccab/constant.dart';
 import 'package:senior_project_ruccab/provider/ride_provider.dart';
 import 'package:senior_project_ruccab/provider/user_provider.dart';
-import 'package:senior_project_ruccab/screens/auth/selection_role_screen.dart';
-import 'package:senior_project_ruccab/screens/auth/signin_screen.dart';
-import 'package:senior_project_ruccab/screens/auth/signup_screen.dart';
-import 'package:senior_project_ruccab/screens/book_ride_main_screen.dart';
-import 'package:senior_project_ruccab/screens/menu/trip_history_screen.dart';
 import 'package:senior_project_ruccab/splash_screen.dart';
+import 'package:senior_project_ruccab/utils/http_req.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 late SharedPreferences sharedPrefenrece;
+final httpRequest = HttpRequests();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   sharedPrefenrece = await SharedPreferences.getInstance();
@@ -37,12 +32,12 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Ruccab',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: mainColor),
         useMaterial3: true,
       ),
-      home: SplashScreen(),
+      home: const SplashScreen(),
     );
   }
 }
